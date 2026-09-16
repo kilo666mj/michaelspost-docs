@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://docs.michaelspost.com/projects.schema.json",
+  "title": "michaelspost.com public project catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "families", "projects"],
+  "properties": {
+    "version": {"const": 1},
+    "families": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/family"}
+    },
+    "projects": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/project"}
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "httpsUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    },
+    "family": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "order", "description"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "title": {"type": "string", "minLength": 1},
+        "order": {"type": "integer", "minimum": 0},
+        "description": {"type": "string", "minLength": 1}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "readme", "roots"],
+      "properties": {
+        "ref": {"type": "string", "minLength": 1},
+        "readme": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+\\.md$"},
+        "roots": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/-]+$"}
+        }
+      }
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "slug", "family", "kind", "status", "summary", "repository", "docs_path", "related", "source", "field_notes"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "name": {"type": "string", "minLength": 1},
+        "slug": {"$ref": "#/$defs/identifier"},
+        "family": {"$ref": "#/$defs/identifier"},
+        "kind": {"enum": ["application", "library"]},
+        "status": {"enum": ["experimental", "active", "stable", "archived"]},
+        "summary": {"type": "string", "minLength": 1},
+        "repository": {"$ref": "#/$defs/httpsUrl"},
+        "docs_path": {"type": "string", "pattern": "^/[a-z0-9/-]+/$"},
+        "package_url": {"$ref": "#/$defs/httpsUrl"},
+        "related": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        },
+        "source": {"$ref": "#/$defs/source"},
+        "field_notes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/httpsUrl"}
+        }
+      }
+    }
+  }
+}

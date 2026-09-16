@@ -1,0 +1,275 @@
+version: 1
+families:
+  - id: gate-stack
+    title: Gate stack
+    order: 10
+    description: Fingerprint gates, their shared node library, control plane, and privacy-limited signals.
+  - id: agent-tooling
+    title: Agent tooling
+    order: 20
+    description: Capability routing, durable memory, and artifact publishing for agents and people.
+  - id: infrastructure-applications
+    title: Infrastructure applications
+    order: 30
+    description: Self-hosted monitoring, DNS operations, and structured notifications.
+  - id: shared-libraries
+    title: Shared libraries
+    order: 40
+    description: Focused packages shared by Go applications and browser notification clients.
+
+projects:
+  - id: gatehub
+    name: Gatehub
+    slug: gatehub
+    family: gate-stack
+    kind: application
+    status: active
+    summary: Shared control plane for fingerprint-gating proxies and their narrowly scoped node synchronization.
+    repository: https://github.com/kilo666mj/gatehub
+    docs_path: /gate-stack/gatehub/
+    related: [gatekit, gatesignal, sshgate, tlsgate]
+    source:
+      ref: main
+      readme: README.md
+      roots: [docs]
+    field_notes:
+      - https://michaelspost.com/posts/2026-08-26-gatehub-gatekit.html
+
+  - id: gatekit
+    name: Gatekit
+    slug: gatekit
+    family: gate-stack
+    kind: library
+    status: active
+    summary: Shared node-side library for fingerprint gates, including SQLite state, Gatehub sync, and rate limiting.
+    repository: https://github.com/kilo666mj/gatekit
+    docs_path: /gate-stack/gatekit/
+    package_url: https://pkg.go.dev/github.com/kilo666mj/gatekit
+    related: [gatehub, sshgate, tlsgate]
+    source:
+      ref: main
+      readme: README.md
+      roots: []
+    field_notes:
+      - https://michaelspost.com/posts/2026-08-26-gatehub-gatekit.html
+
+  - id: gatesignal
+    name: GateSignal
+    slug: gatesignal
+    family: gate-stack
+    kind: application
+    status: active
+    summary: Turns HTTP access logs into privacy-limited security signals and aggregate analytics.
+    repository: https://github.com/kilo666mj/gatesignal
+    docs_path: /gate-stack/gatesignal/
+    related: [gatehub]
+    source:
+      ref: main
+      readme: README.md
+      roots: [docs]
+    field_notes: []
+
+  - id: sshgate
+    name: SSHGate
+    slug: sshgate
+    family: gate-stack
+    kind: application
+    status: active
+    summary: SSH proxy that fingerprints the client KEXINIT handshake before connections reach sshd.
+    repository: https://github.com/kilo666mj/sshgate
+    docs_path: /gate-stack/sshgate/
+    related: [gatehub, gatekit, tlsgate]
+    source:
+      ref: main
+      readme: README.md
+      roots: [docs]
+    field_notes:
+      - https://michaelspost.com/posts/2026-06-05-tlsgate-sshgate.html
+
+  - id: tlsgate
+    name: TLSGate
+    slug: tlsgate
+    family: gate-stack
+    kind: application
+    status: active
+    summary: TLS ClientHello fingerprint gate that reduces scanner noise ahead of TLS services.
+    repository: https://github.com/kilo666mj/tlsgate
+    docs_path: /gate-stack/tlsgate/
+    related: [gatehub, gatekit, sshgate]
+    source:
+      ref: main
+      readme: README.md
+      roots: [docs]
+    field_notes:
+      - https://michaelspost.com/posts/2026-06-05-tlsgate-sshgate.html
+
+  - id: switchboard
+    name: Switchboard
+    slug: switchboard
+    family: agent-tooling
+    kind: application
+    status: active
+    summary: Private capability gateway that exposes curated upstream tools through one identity-aware MCP endpoint.
+    repository: https://github.com/kilo666mj/switchboard
+    docs_path: /agent-tooling/switchboard/
+    related: [mcpkit, rendercase, wayminder]
+    source:
+      ref: main
+      readme: README.md
+      roots: [docs]
+    field_notes: []
+
+  - id: wayminder
+    name: Wayminder
+    slug: wayminder
+    family: agent-tooling
+    kind: application
+    status: active
+    summary: Private, local-first durable memory for AI agents.
+    repository: https://github.com/kilo666mj/wayminder
+    docs_path: /agent-tooling/wayminder/
+    related: [mcpkit, rendercase, switchboard]
+    source:
+      ref: main
+      readme: README.md
+      roots: []
+    field_notes:
+      - https://michaelspost.com/posts/2026-08-26-wayminder.html
+
+  - id: rendercase
+    name: Rendercase
+    slug: rendercase
+    family: agent-tooling
+    kind: application
+    status: active
+    summary: Self-hosted artifact publishing, review, versioning, and sharing for agents, CI, CLIs, and people.
+    repository: https://github.com/kilo666mj/rendercase
+    docs_path: /agent-tooling/rendercase/
+    related: [mcpkit, switchboard, wayminder]
+    source:
+      ref: main
+      readme: README.md
+      roots: [docs]
+    field_notes:
+      - https://michaelspost.com/posts/2026-08-29-rendercase.html
+
+  - id: parallaxd
+    name: Parallaxd
+    slug: parallaxd
+    family: infrastructure-applications
+    kind: application
+    status: active
+    summary: Corroborated availability monitoring that confirms failures from independent vantage points.
+    repository: https://github.com/kilo666mj/parallaxd
+    docs_path: /infrastructure/parallaxd/
+    related: [tintwire, tintwire-go]
+    source:
+      ref: main
+      readme: README.md
+      roots: [docs]
+    field_notes:
+      - https://michaelspost.com/posts/2026-08-26-parallaxd.html
+
+  - id: rilldns
+    name: RillDNS
+    slug: rilldns
+    family: infrastructure-applications
+    kind: application
+    status: active
+    summary: Compact CoreDNS operations stack with authenticated replication, managed blocking, APIs, UI, and monitoring.
+    repository: https://github.com/kilo666mj/rilldns
+    docs_path: /infrastructure/rilldns/
+    related: [mcpkit]
+    source:
+      ref: main
+      readme: README.md
+      roots: [docs]
+    field_notes:
+      - https://michaelspost.com/posts/2026-08-26-rilldns.html
+
+  - id: tintwire
+    name: Tintwire
+    slug: tintwire
+    family: infrastructure-applications
+    kind: application
+    status: active
+    summary: Self-hosted inbox for structured, interactive operational notifications.
+    repository: https://github.com/kilo666mj/tintwire
+    docs_path: /infrastructure/tintwire/
+    related: [pwa-kit, tintwire-go]
+    source:
+      ref: main
+      readme: README.md
+      roots: [docs]
+    field_notes:
+      - https://michaelspost.com/posts/2026-08-26-tintwire.html
+
+  - id: mcpkit
+    name: MCPKit
+    slug: mcpkit
+    family: shared-libraries
+    kind: library
+    status: active
+    summary: Small, opinionated helpers for secure Go MCP servers.
+    repository: https://github.com/kilo666mj/mcpkit
+    docs_path: /libraries/mcpkit/
+    package_url: https://pkg.go.dev/github.com/kilo666mj/mcpkit
+    related: [rendercase, rilldns, switchboard, wayminder]
+    source:
+      ref: main
+      readme: README.md
+      roots: []
+    field_notes: []
+
+  - id: oidcrp
+    name: OIDCRP
+    slug: oidcrp
+    family: shared-libraries
+    kind: library
+    status: active
+    summary: OpenID Connect relying-party helper for Go web applications.
+    repository: https://github.com/kilo666mj/oidcrp
+    docs_path: /libraries/oidcrp/
+    package_url: https://pkg.go.dev/github.com/kilo666mj/oidcrp
+    related: []
+    source:
+      ref: main
+      readme: README.md
+      roots: []
+    field_notes:
+      - https://michaelspost.com/posts/2026-08-26-oidcrp.html
+
+  - id: pwa-kit
+    name: PWA Kit
+    slug: pwa-kit
+    family: shared-libraries
+    kind: library
+    status: active
+    summary: Shared Web Push transport and embedded PWA notification helpers for Go applications.
+    repository: https://github.com/kilo666mj/pwa-kit
+    docs_path: /libraries/pwa-kit/
+    related: [tintwire]
+    source:
+      ref: main
+      readme: README.md
+      roots: []
+    field_notes: []
+
+  - id: tintwire-go
+    name: Tintwire Go
+    slug: tintwire-go
+    family: shared-libraries
+    kind: library
+    status: active
+    summary: Go publishing client for Tintwire native cards with bounded retries and Mattermost failover.
+    repository: https://github.com/kilo666mj/tintwire-go
+    docs_path: /libraries/tintwire-go/
+    package_url: https://pkg.go.dev/github.com/kilo666mj/tintwire-go
+    related: [tintwire]
+    source:
+      ref: main
+      readme: README.md
+      roots: []
+    field_notes:
+      - https://michaelspost.com/posts/2026-08-26-tintwire.html
+

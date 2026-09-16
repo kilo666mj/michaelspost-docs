@@ -16,10 +16,36 @@ Project-specific documentation remains authoritative in its source repository.
 The central site owns only cross-project explanations, catalog metadata, theme,
 import logic, and published build metadata.
 
+## Local development
+
+The project uses Python 3.12, MkDocs Material, and `uv` for reproducible
+dependencies:
+
+```sh
+make setup
+make serve
+```
+
+The development server is available at `http://127.0.0.1:8000`. Catalog-backed
+pages are generated into the ignored `build/` directory before MkDocs starts.
+Restart `make serve` after changing `projects.yml` or generator code.
+
+Build the production site into the ignored `dist/` directory and run all
+validation with:
+
+```sh
+make build
+make check
+```
+
+`make check` validates the catalog, generator tests, the strict MkDocs render,
+internal links, basic HTML accessibility, and light/dark body-text contrast.
+
 ## Status
 
-The architecture and authoring contract are defined. Site scaffolding and the
-multi-repository importer are the next implementation stages.
+The shared shell and catalog pages are implemented. The multi-repository
+importer is the next implementation stage; until then, each placeholder project
+page links directly to its authoritative GitHub repository.
 
 See:
 
@@ -32,4 +58,3 @@ See:
 ## License
 
 MIT
-

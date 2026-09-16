@@ -1,0 +1,75 @@
+site_name: Michael's Project Documentation
+site_description: Documentation for Michael's public projects
+site_url: https://docs.michaelspost.com/
+repo_url: https://github.com/kilo666mj/michaelspost-docs
+repo_name: kilo666mj/michaelspost-docs
+copyright: Documentation is assembled from its owning public repositories.
+docs_dir: docs
+site_dir: ../dist
+use_directory_urls: true
+strict: true
+
+theme:
+  name: material
+  language: en
+  custom_dir: overrides
+  favicon: assets/favicon.svg
+  icon:
+    logo: material/console-line
+    repo: fontawesome/brands/github
+  features:
+    - announce.dismiss
+    - content.code.copy
+    - content.code.select
+    - navigation.footer
+    - navigation.indexes
+    - navigation.instant
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: terminal-paper
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: terminal-noir
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+plugins:
+  - search:
+      separator: '[\\s\\-\\.]+'
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - tables
+  - toc:
+      permalink: true
+
+extra_css:
+  - assets/stylesheets/extra.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/kilo666mj
+      name: Michael on GitHub

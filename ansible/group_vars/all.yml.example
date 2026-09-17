@@ -1,0 +1,8 @@
+---
+# Optional overrides. Copy to group_vars/all.yml; the real file is gitignored.
+docs_document_root: /var/www/html/docs.michaelspost.com
+docs_verify_url: https://docs.michaelspost.com/
+
+# These default to ansible_user in the playbook.
+# docs_owner: deployuser
+# docs_group: deployuser

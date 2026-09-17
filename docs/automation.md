@@ -4,6 +4,11 @@
 > retains this tested workflow for a future hosted deployment, but no agent is
 > currently authorized to upload builds or create artifact versions.
 
+This Rendercase workflow is separate from the static Spike deployment described
+in [Deployment](deployment.md). Deploying to Spike does not create or update an
+artifact. Until recurring Spike deployment is explicitly authorized, source
+updates are published by running the documented Ansible playbook manually.
+
 ## Schedule and update latency
 
 When enabled, a fresh agent checks the site every 24 hours. It fast-forwards this repository,

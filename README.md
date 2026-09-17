@@ -62,6 +62,7 @@ See:
 - [Authoring contract](docs/authoring.md)
 - [Documentation validation and adoption](docs/validation.md)
 - [Source-repository CI rollout](docs/ci-rollout.md)
+- [Static-site deployment](docs/deployment.md)
 - [Refresh automation and recovery](docs/automation.md)
 - [Project catalog](projects.yml)
 - [Catalog schema](projects.schema.json)

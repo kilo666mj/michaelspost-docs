@@ -1,0 +1,121 @@
+---
+- name: Build and deploy docs.michaelspost.com
+  hosts: docs
+  gather_facts: true
+  vars:
+    docs_source_dir: "{{ playbook_dir }}/.."
+    docs_dist_dir: "{{ docs_source_dir }}/dist"
+    docs_document_root: /var/www/html/docs.michaelspost.com
+    docs_nginx_config: /etc/nginx/conf.d/docs.michaelspost.com.conf
+    docs_owner: "{{ ansible_user | default(ansible_facts['user_id']) }}"
+    docs_group: "{{ ansible_user | default(ansible_facts['user_id']) }}"
+    docs_verify_url: https://docs.michaelspost.com/
+
+  pre_tasks:
+    - name: Validate and build the documentation locally
+      ansible.builtin.command:
+        cmd: make check
+        chdir: "{{ docs_source_dir }}"
+      delegate_to: localhost
+      become: false
+      check_mode: false
+      changed_when: true
+      run_once: true
+
+    - name: Inspect the generated index
+      ansible.builtin.stat:
+        path: "{{ docs_dist_dir }}/index.html"
+      delegate_to: localhost
+      become: false
+      register: docs_index
+      run_once: true
+
+    - name: Find generated project pages
+      ansible.builtin.find:
+        paths: "{{ docs_dist_dir }}"
+        patterns: index.html
+        file_type: file
+        recurse: true
+      delegate_to: localhost
+      become: false
+      register: docs_pages
+      run_once: true
+
+    - name: Refuse to deploy an incomplete build
+      ansible.builtin.assert:
+        that:
+          - docs_index.stat.exists
+          - docs_index.stat.isreg
+          - docs_index.stat.size | int > 0
+          - docs_pages.matched | int >= 16
+        fail_msg: >-
+          The generated documentation tree is incomplete; refusing to
+          synchronize with deletion enabled.
+      delegate_to: localhost
+      become: false
+      run_once: true
+
+  tasks:
+    - name: Ensure the documentation root exists
+      ansible.builtin.file:
+        path: "{{ docs_document_root }}"
+        state: directory
+        owner: "{{ docs_owner }}"
+        group: "{{ docs_group }}"
+        mode: "0755"
+      become: true
+
+    - name: Synchronize generated documentation
+      ansible.posix.synchronize:
+        src: "{{ docs_dist_dir }}/"
+        dest: "{{ docs_document_root }}/"
+        archive: true
+        checksum: true
+        times: false
+        delete: true
+        rsync_opts:
+          - "--delay-updates"
+          - "--itemize-changes"
+      delegate_to: localhost
+      become: false
+
+    - name: Install the nginx virtual host
+      ansible.builtin.template:
+        src: templates/docs.michaelspost.com.conf.j2
+        dest: "{{ docs_nginx_config }}"
+        owner: root
+        group: root
+        mode: "0644"
+      become: true
+      notify: Reload nginx
+
+    - name: Validate nginx configuration
+      ansible.builtin.command: nginx -t
+      become: true
+      changed_when: false
+
+    - name: Apply nginx changes before verification
+      ansible.builtin.meta: flush_handlers
+
+    - name: Verify the public documentation site
+      ansible.builtin.uri:
+        url: "{{ docs_verify_url }}"
+        status_code: 200
+        return_content: false
+      delegate_to: localhost
+      become: false
+      register: docs_verify
+      retries: 5
+      delay: 3
+      until: docs_verify.status == 200
+      when:
+        - not ansible_check_mode
+        - docs_verify_url | length > 0
+      run_once: true
+
+  handlers:
+    - name: Reload nginx
+      ansible.builtin.systemd_service:
+        name: nginx
+        state: reloaded
+      become: true

@@ -1,0 +1,4 @@
+# Copy this file to "inventory" and replace the placeholder with the SSH host.
+# The real inventory is gitignored so infrastructure hostnames stay local.
+[docs]
+docs-host ansible_host=example.invalid ansible_user=deployuser

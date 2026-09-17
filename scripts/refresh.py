@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import zipfile
@@ -29,6 +30,7 @@ SECRET_RE = re.compile(
 )
 HTML_ASSET_RE = re.compile(r'(?P<prefix>\b(?:href|src)=["\'])(?P<url>[^"\']+)(?P<suffix>["\'])')
 IMAGE_SUFFIXES = {".avif", ".gif", ".jpeg", ".jpg", ".png", ".svg", ".webp"}
+LARGE_PNG_BYTES = 1_000_000
 
 
 def now() -> dt.datetime:
@@ -118,8 +120,29 @@ def scan_bundle(directory: Path) -> None:
             raise SystemExit(f"possible secret in generated bundle: {relative}")
 
 
+def rewrite_html_assets(directory: Path, replacements: dict[Path, Path]) -> None:
+    for page in directory.rglob("*.html"):
+        original = page.read_text()
+
+        def replace(match: re.Match, page: Path = page) -> str:
+            parsed = urlsplit(match.group("url"))
+            if parsed.scheme or parsed.netloc or not parsed.path:
+                return match.group(0)
+            target = (page.parent / unquote(parsed.path)).resolve()
+            replacement = replacements.get(target)
+            if replacement is None:
+                return match.group(0)
+            relative = os.path.relpath(replacement, page.parent).replace(os.sep, "/")
+            rewritten = urlunsplit(("", "", relative, parsed.query, parsed.fragment))
+            return f'{match.group("prefix")}{rewritten}{match.group("suffix")}'
+
+        updated = HTML_ASSET_RE.sub(replace, original)
+        if updated != original:
+            page.write_text(updated)
+
+
 def optimize_bundle(directory: Path) -> dict[str, int]:
-    """Remove development-only files and coalesce byte-identical images."""
+    """Remove development-only files and optimize imported image assets."""
     source_maps = list(directory.rglob("*.map"))
     for path in source_maps:
         path.unlink()
@@ -140,28 +163,45 @@ def optimize_bundle(directory: Path) -> dict[str, int]:
         for duplicate in duplicates:
             duplicate.unlink()
             removed += 1
+    rewrite_html_assets(directory, replacements)
 
-    if replacements:
-        for page in directory.rglob("*.html"):
-            original = page.read_text()
+    large_pngs = [path for path in directory.rglob("*.png") if path.stat().st_size >= LARGE_PNG_BYTES]
+    converted = 0
+    if large_pngs:
+        converter = shutil.which("cwebp")
+        if not converter:
+            raise SystemExit("cwebp is required to optimize large documentation images")
+        for source in large_pngs:
+            destination = source.with_suffix(".webp")
+            if destination.exists():
+                raise SystemExit(f"image optimization target already exists: {destination}")
+            subprocess.run(
+                [
+                    converter,
+                    "-quiet",
+                    "-resize",
+                    "768",
+                    "0",
+                    "-q",
+                    "82",
+                    str(source),
+                    "-o",
+                    str(destination),
+                ],
+                check=True,
+            )
+            if destination.stat().st_size >= source.stat().st_size:
+                destination.unlink()
+                continue
+            rewrite_html_assets(directory, {source.resolve(): destination.resolve()})
+            source.unlink()
+            converted += 1
 
-            def replace(match: re.Match, page: Path = page) -> str:
-                parsed = urlsplit(match.group("url"))
-                if parsed.scheme or parsed.netloc or not parsed.path:
-                    return match.group(0)
-                target = (page.parent / unquote(parsed.path)).resolve()
-                canonical = replacements.get(target)
-                if canonical is None:
-                    return match.group(0)
-                relative = os.path.relpath(canonical, page.parent).replace(os.sep, "/")
-                rewritten = urlunsplit(("", "", relative, parsed.query, parsed.fragment))
-                return f'{match.group("prefix")}{rewritten}{match.group("suffix")}'
-
-            updated = HTML_ASSET_RE.sub(replace, original)
-            if updated != original:
-                page.write_text(updated)
-
-    return {"source_maps_removed": len(source_maps), "duplicate_images_removed": removed}
+    return {
+        "source_maps_removed": len(source_maps),
+        "duplicate_images_removed": removed,
+        "large_pngs_converted": converted,
+    }
 
 
 def package(directory: Path, archive: Path) -> None:

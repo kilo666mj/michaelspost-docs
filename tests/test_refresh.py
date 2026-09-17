@@ -88,8 +88,34 @@ def test_optimize_bundle_removes_maps_and_rewrites_duplicate_images(tmp_path):
 
     result = refresh.optimize_bundle(site)
 
-    assert result == {"source_maps_removed": 1, "duplicate_images_removed": 1}
+    assert result == {
+        "source_maps_removed": 1,
+        "duplicate_images_removed": 1,
+        "large_pngs_converted": 0,
+    }
     assert first.exists()
     assert not second.exists()
     assert not source_map.exists()
     assert '../one/assets/mascot.png' in (site / "two" / "index.html").read_text()
+
+
+def test_optimize_bundle_converts_large_png_and_rewrites_reference(monkeypatch, tmp_path):
+    site = tmp_path / "site"
+    image = site / "assets" / "large.png"
+    image.parent.mkdir(parents=True)
+    image.write_bytes(b"x" * refresh.LARGE_PNG_BYTES)
+    page = site / "index.html"
+    page.write_text('<img src="assets/large.png">')
+    monkeypatch.setattr(refresh.shutil, "which", lambda _name: "/usr/bin/cwebp")
+
+    def convert(command, **_kwargs):
+        Path(command[-1]).write_bytes(b"webp")
+
+    monkeypatch.setattr(refresh.subprocess, "run", convert)
+
+    result = refresh.optimize_bundle(site)
+
+    assert result["large_pngs_converted"] == 1
+    assert not image.exists()
+    assert image.with_suffix(".webp").read_bytes() == b"webp"
+    assert 'src="assets/large.webp"' in page.read_text()

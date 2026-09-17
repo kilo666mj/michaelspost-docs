@@ -18,7 +18,8 @@ make old documentation look newer.
 `.cache/refresh/`:
 
 1. `prepare` acquires a lease, runs `make check`, scans the generated bundle for
-   likely credentials, creates a deterministic ZIP, and compares the source
+   likely credentials, deduplicates identical images, converts PNGs larger than
+   1 MB with `cwebp`, creates a deterministic ZIP, and compares the source
    fingerprint with the last successful publication.
 2. The publishing agent uploads a changed candidate to the artifact identified
    by `rendercase.json`. It updates the existing private artifact and never

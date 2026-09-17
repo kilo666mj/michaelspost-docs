@@ -23,9 +23,14 @@ def test_navigation_contains_every_project():
         assert project["docs_path"].strip("/") in flattened
 
 
-def test_navigation_contains_agent_tooling_guide():
+def test_navigation_contains_cross_project_guides():
     nav = generated_nav(load_catalog())
-    assert {"Guides": [{"Agent tooling stack": "guides/agent-tooling.md"}]} in nav
+    assert {
+        "Guides": [
+            {"Gate stack": "guides/gate-stack.md"},
+            {"Agent tooling stack": "guides/agent-tooling.md"},
+        ]
+    } in nav
 
 
 def test_each_family_maps_to_one_public_path():

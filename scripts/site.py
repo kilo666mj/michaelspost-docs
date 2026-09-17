@@ -150,7 +150,14 @@ def generated_nav(catalog: dict) -> list[dict]:
         pages: list[dict] = [{"Overview": f"{base}/index.md"}]
         pages.extend({project["name"]: project["docs_path"].strip("/") + "/index.md"} for project in projects)
         nav.append({family["title"]: pages})
-    nav.append({"Guides": [{"Agent tooling stack": "guides/agent-tooling.md"}]})
+    nav.append(
+        {
+            "Guides": [
+                {"Gate stack": "guides/gate-stack.md"},
+                {"Agent tooling stack": "guides/agent-tooling.md"},
+            ]
+        }
+    )
     nav.append({"About": [{"Architecture": "about/architecture.md"}, {"Authoring": "about/authoring.md"}]})
     return nav
 
@@ -166,6 +173,7 @@ def generate() -> None:
     (GENERATED_DOCS / "guides").mkdir()
     shutil.copy2(ROOT / "docs" / "architecture.md", GENERATED_DOCS / "about" / "architecture.md")
     shutil.copy2(ROOT / "docs" / "authoring.md", GENERATED_DOCS / "about" / "authoring.md")
+    shutil.copy2(ROOT / "docs" / "guides" / "gate-stack.md", GENERATED_DOCS / "guides" / "gate-stack.md")
     shutil.copy2(ROOT / "docs" / "guides" / "agent-tooling.md", GENERATED_DOCS / "guides" / "agent-tooling.md")
     (GENERATED_DOCS / "index.md").write_text(homepage(catalog))
 

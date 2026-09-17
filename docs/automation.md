@@ -1,8 +1,12 @@
 # Refresh automation and recovery
 
+> **Current status:** scheduled publication is disabled. The repository still
+> retains this tested workflow for a future hosted deployment, but no agent is
+> currently authorized to upload builds or create artifact versions.
+
 ## Schedule and update latency
 
-A fresh agent checks the site every 24 hours. It fast-forwards this repository,
+When enabled, a fresh agent checks the site every 24 hours. It fast-forwards this repository,
 resolves the 15 configured public source refs, and runs the complete importer,
 renderer, link, accessibility, and contrast validation. Normal source changes
 therefore appear in Rendercase within 24 hours plus build time.

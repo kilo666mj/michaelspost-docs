@@ -1,9 +1,9 @@
 # michaelspost.com documentation
 
-This repository builds the documentation hub planned for
-`docs.michaelspost.com`. It gives Michael's public projects a shared front door
-without moving project documentation away from the repositories that own the
-code.
+This repository builds a unified documentation catalog for Michael's public
+projects without moving project documentation away from the repositories that
+own the code. The public project index remains at `michaelspost.com/projects.html`;
+this repository provides the catalog, importer, renderer, and validation source.
 
 The site has three responsibilities:
 
@@ -41,18 +41,18 @@ make check
 `make check` validates the catalog, generator tests, the strict MkDocs render,
 internal links, basic HTML accessibility, and light/dark body-text contrast.
 
-## Publishing
+## Hosting status
 
-Validated builds are published as private, immutable Rendercase artifacts. The
-artifact bundle contains only the generated `dist/` tree, with `index.html` at
-its root. Publishing a new build creates a new version; it does not create a
-public capability link. A scheduled agent checks public source heads every 24
-hours and skips publication when neither source commits nor site code changed.
+Automated artifact publication is paused. Validated builds remain local build
+output, and no scheduled agent uploads them. The public project page links to
+the documentation source repository and each project's canonical GitHub
+repository. The retained refresh tooling is dormant and available only if a
+hosted catalog is intentionally restored later.
 
 ## Status
 
-The documentation-first site imports the configured README and `docs/` content
-from all 15 public repositories. Every published page records its source path,
+The documentation build imports the configured README and `docs/` content from
+all 15 public repositories. Every generated page records its source path,
 immutable commit, source-update time, and edit link. The generated build
 manifest records the complete source snapshot used for each Rendercase version.
 

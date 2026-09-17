@@ -2,16 +2,19 @@
 
 ## Decision
 
-`docs.michaelspost.com` is a static aggregation and presentation layer. It does
-not become a second source of truth for any project.
+The generated documentation catalog is a static aggregation and presentation
+layer. It does not become a second source of truth for any project. Automated
+hosting is currently paused; the repository remains the build and validation
+source.
 
 The public information architecture is deliberately split across three
 surfaces:
 
 - `michaelspost.com` explains why projects exist through field notes and the
   portfolio page.
-- `docs.michaelspost.com` provides discovery, cross-project explanations,
-  consistent navigation, search, and rendered repository documentation.
+- The generated catalog provides discovery, cross-project explanations,
+  consistent navigation, search, and rendered repository documentation when
+  built locally or intentionally hosted.
 - GitHub owns source, issues, releases, contribution history, and the canonical
   project documentation files.
 
@@ -123,4 +126,3 @@ repository before it is imported.
 
 The build uses no production credentials. Deployment credentials, DNS values,
 and infrastructure inventory remain outside the public repository.
-

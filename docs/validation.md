@@ -54,6 +54,9 @@ its existing test, release, CodeQL, or dependency-update workflows. Go projects
 should use `--go-test` only when the workflow does not already run the same
 package tests.
 
+The current repository-by-repository adoption and exception record is in the
+[source-repository CI rollout](ci-rollout.md).
+
 ## Aggregate checks
 
 `make check` validates `projects.yml` against `projects.schema.json`, resolves

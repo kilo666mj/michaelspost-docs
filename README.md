@@ -61,6 +61,7 @@ See:
 - [Architecture and source policy](docs/architecture.md)
 - [Authoring contract](docs/authoring.md)
 - [Documentation validation and adoption](docs/validation.md)
+- [Source-repository CI rollout](docs/ci-rollout.md)
 - [Refresh automation and recovery](docs/automation.md)
 - [Project catalog](projects.yml)
 - [Catalog schema](projects.schema.json)

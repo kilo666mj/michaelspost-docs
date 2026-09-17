@@ -164,6 +164,7 @@ def generated_nav(catalog: dict, manifest: dict | None = None) -> list[dict]:
     nav[-1]["About"].extend(
         [
             {"Documentation validation": "about/validation.md"},
+            {"Source-repository CI": "about/ci-rollout.md"},
             {"Refresh and recovery": "about/automation.md"},
         ]
     )
@@ -181,6 +182,7 @@ def generate() -> None:
     shutil.copy2(ROOT / "docs" / "architecture.md", GENERATED_DOCS / "about" / "architecture.md")
     shutil.copy2(ROOT / "docs" / "authoring.md", GENERATED_DOCS / "about" / "authoring.md")
     shutil.copy2(ROOT / "docs" / "validation.md", GENERATED_DOCS / "about" / "validation.md")
+    shutil.copy2(ROOT / "docs" / "ci-rollout.md", GENERATED_DOCS / "about" / "ci-rollout.md")
     shutil.copy2(ROOT / "docs" / "automation.md", GENERATED_DOCS / "about" / "automation.md")
     shutil.copy2(ROOT / "docs" / "guides" / "gate-stack.md", GENERATED_DOCS / "guides" / "gate-stack.md")
     shutil.copy2(ROOT / "docs" / "guides" / "agent-tooling.md", GENERATED_DOCS / "guides" / "agent-tooling.md")

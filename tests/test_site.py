@@ -1,4 +1,10 @@
-from scripts.site import family_path, generated_nav, load_catalog
+from pathlib import Path
+
+import yaml
+
+from scripts.site import family_path, generated_nav, homepage, load_catalog
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_catalog_is_valid_and_complete():
@@ -38,3 +44,26 @@ def test_each_family_maps_to_one_public_path():
     for family in catalog["families"]:
         projects = [project for project in catalog["projects"] if project["family"] == family["id"]]
         assert len({family_path(project) for project in projects}) == 1
+
+
+def test_homepage_prioritizes_search_and_project_discovery():
+    catalog = load_catalog()
+    content = homepage(catalog)
+    assert 'class="docs-search"' in content
+    assert 'for="__search"' in content
+    for project in catalog["projects"]:
+        assert f'href="{project["docs_path"]}"' in content
+
+
+def test_theme_uses_documentation_layout_and_system_aware_palettes():
+    config = yaml.safe_load((ROOT / "mkdocs.yml").read_text())
+    features = config["theme"]["features"]
+    assert "navigation.sections" in features
+    assert "toc.follow" in features
+    assert "navigation.tabs" not in features
+    palettes = config["theme"]["palette"]
+    assert [palette["scheme"] for palette in palettes] == ["docs-light", "docs-dark"]
+    assert [palette["media"] for palette in palettes] == [
+        "(prefers-color-scheme: light)",
+        "(prefers-color-scheme: dark)",
+    ]

@@ -41,11 +41,19 @@ make check
 `make check` validates the catalog, generator tests, the strict MkDocs render,
 internal links, basic HTML accessibility, and light/dark body-text contrast.
 
+## Publishing
+
+Validated builds are published as private, immutable Rendercase artifacts. The
+artifact bundle contains only the generated `dist/` tree, with `index.html` at
+its root. Publishing a new build creates a new version; it does not create a
+public capability link.
+
 ## Status
 
-The shared shell and catalog pages are implemented. The multi-repository
-importer is the next implementation stage; until then, each placeholder project
-page links directly to its authoritative GitHub repository.
+The shared shell, documentation-first theme, and catalog pages are implemented.
+The multi-repository importer is the next implementation stage; until then,
+each placeholder project page links directly to its authoritative GitHub
+repository.
 
 See:
 

@@ -62,8 +62,8 @@ def main() -> None:
                 failures.append(f"{label}: broken internal link {link['href']}")
 
     palettes = {
-        "terminal-noir": ("#d9e5df", "#0b100e"),
-        "terminal-paper": ("#1d2420", "#f6f3ec"),
+        "docs-dark": ("#e5e7eb", "#0f172a"),
+        "docs-light": ("#1f2937", "#ffffff"),
     }
     for name, (foreground, background) in palettes.items():
         ratio = contrast(foreground, background)

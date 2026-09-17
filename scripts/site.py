@@ -40,12 +40,17 @@ def family_path(project: dict) -> str:
 
 def family_card(family: dict, projects: list[dict]) -> str:
     path = family_path(projects[0])
-    names = ", ".join(project["name"] for project in projects)
+    project_links = "\n".join(
+        f'<li><a href="{project["docs_path"]}">{html.escape(project["name"])}</a></li>'
+        for project in projects
+    )
     return f'''<article class="family-card">
-<span class="project-meta">{len(projects):02d} projects</span>
+<span class="project-meta">{len(projects)} projects</span>
 <h2><a href="{path}/">{html.escape(family["title"])}</a></h2>
 <p>{html.escape(family["description"])}</p>
-<small>{html.escape(names)}</small>
+<ul class="project-list">
+{project_links}
+</ul>
 </article>'''
 
 
@@ -67,14 +72,24 @@ def homepage(catalog: dict) -> str:
         family_card(family, projects_by_family[family["id"]])
         for family in sorted(catalog["families"], key=lambda item: item["order"])
     )
-    return f'''<p class="terminal-kicker">Public project knowledge base</p>
+    return f'''<p class="docs-eyebrow">Project documentation</p>
 
-# Find the project. Follow the system.
+# Build, deploy, and operate the stack
 
-<p class="docs-lede">One searchable home for the architecture, adoption, deployment, and operation of Michael's {len(catalog["projects"])} public projects. Each project's repository remains the source of truth.</p>
+<p class="docs-lede">Practical documentation for Michael's {len(catalog["projects"])} public projects, organized by what you are trying to build or operate. Each project's repository remains the source of truth.</p>
 
-[Browse all projects](#project-families){{ .md-button .md-button--primary }}
-[How these docs work](about/architecture.md){{ .md-button }}
+<label class="docs-search" for="__search">
+  <span class="docs-search__icon" aria-hidden="true">⌕</span>
+  <span>Search all documentation</span>
+  <kbd>/</kbd>
+</label>
+
+<nav class="docs-quick-links" aria-label="Documentation shortcuts">
+  <a href="#project-families">Browse projects</a>
+  <a href="guides/gate-stack/">Gate stack guide</a>
+  <a href="guides/agent-tooling/">Agent tooling guide</a>
+  <a href="about/architecture/">How these docs work</a>
+</nav>
 
 ## Project families
 
@@ -94,7 +109,7 @@ source repositories  ->  validated import  ->  this searchable static site
 
 def family_page(family: dict, projects: list[dict]) -> str:
     cards = "\n".join(project_card(project) for project in projects)
-    return f'''<p class="terminal-kicker">Project family</p>
+    return f'''<p class="docs-eyebrow">Project family</p>
 
 # {family["title"]}
 
@@ -115,7 +130,7 @@ def project_page(project: dict, projects_by_id: dict[str, dict]) -> str:
         for item in project["related"]
     ) or "This project does not declare related projects yet."
     roots = ", ".join(f'`{root}/`' for root in project["source"]["roots"]) or "README only"
-    return f'''<p class="terminal-kicker">{html.escape(project["kind"])}</p>
+    return f'''<p class="docs-eyebrow">{html.escape(project["kind"])}</p>
 
 # {html.escape(project["name"])}
 

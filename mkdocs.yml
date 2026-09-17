@@ -18,14 +18,12 @@ theme:
     logo: material/console-line
     repo: fontawesome/brands/github
   features:
-    - announce.dismiss
     - content.code.copy
     - content.code.select
     - navigation.footer
     - navigation.indexes
     - navigation.instant
     - navigation.sections
-    - navigation.tabs
     - navigation.top
     - search.highlight
     - search.share
@@ -33,12 +31,12 @@ theme:
     - toc.follow
   palette:
     - media: "(prefers-color-scheme: light)"
-      scheme: terminal-paper
+      scheme: docs-light
       toggle:
         icon: material/weather-night
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
-      scheme: terminal-noir
+      scheme: docs-dark
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode

@@ -12,7 +12,6 @@ strict: true
 theme:
   name: material
   language: en
-  custom_dir: overrides
   favicon: assets/favicon.svg
   icon:
     logo: material/console-line

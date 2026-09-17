@@ -176,7 +176,6 @@ def generate() -> None:
     GENERATED_DOCS.mkdir(parents=True)
 
     shutil.copytree(ROOT / "site_assets", GENERATED_DOCS / "assets")
-    shutil.copytree(ROOT / "overrides", BUILD / "overrides")
     (GENERATED_DOCS / "about").mkdir()
     (GENERATED_DOCS / "guides").mkdir()
     shutil.copy2(ROOT / "docs" / "architecture.md", GENERATED_DOCS / "about" / "architecture.md")

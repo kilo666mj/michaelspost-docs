@@ -46,19 +46,22 @@ internal links, basic HTML accessibility, and light/dark body-text contrast.
 Validated builds are published as private, immutable Rendercase artifacts. The
 artifact bundle contains only the generated `dist/` tree, with `index.html` at
 its root. Publishing a new build creates a new version; it does not create a
-public capability link.
+public capability link. A scheduled agent checks public source heads every 24
+hours and skips publication when neither source commits nor site code changed.
 
 ## Status
 
-The shared shell, documentation-first theme, and catalog pages are implemented.
-The multi-repository importer is the next implementation stage; until then,
-each placeholder project page links directly to its authoritative GitHub
-repository.
+The documentation-first site imports the configured README and `docs/` content
+from all 15 public repositories. Every published page records its source path,
+immutable commit, source-update time, and edit link. The generated build
+manifest records the complete source snapshot used for each Rendercase version.
 
 See:
 
 - [Architecture and source policy](docs/architecture.md)
 - [Authoring contract](docs/authoring.md)
+- [Documentation validation and adoption](docs/validation.md)
+- [Refresh automation and recovery](docs/automation.md)
 - [Project catalog](projects.yml)
 - [Catalog schema](projects.schema.json)
 - [Contribution workflow](CONTRIBUTING.md)

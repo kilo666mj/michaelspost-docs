@@ -52,7 +52,7 @@ def test_homepage_prioritizes_search_and_project_discovery():
     assert 'class="docs-search"' in content
     assert 'for="__search"' in content
     for project in catalog["projects"]:
-        assert f'href="{project["docs_path"]}"' in content
+        assert f'href="{project["docs_path"].strip("/")}/"' in content
 
 
 def test_theme_uses_documentation_layout_and_system_aware_palettes():

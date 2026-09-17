@@ -12,6 +12,8 @@ from pathlib import Path, PurePosixPath
 import yaml
 from jsonschema import Draft202012Validator, FormatChecker
 
+from scripts.importer import import_all
+
 ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT / "build"
 GENERATED_DOCS = BUILD / "docs"
@@ -41,7 +43,7 @@ def family_path(project: dict) -> str:
 def family_card(family: dict, projects: list[dict]) -> str:
     path = family_path(projects[0])
     project_links = "\n".join(
-        f'<li><a href="{project["docs_path"]}">{html.escape(project["name"])}</a></li>'
+        f'<li><a href="{project["docs_path"].strip("/")}/">{html.escape(project["name"])}</a></li>'
         for project in projects
     )
     return f'''<article class="family-card">
@@ -54,10 +56,10 @@ def family_card(family: dict, projects: list[dict]) -> str:
 </article>'''
 
 
-def project_card(project: dict, heading: str = "h2") -> str:
+def project_card(project: dict, href: str, heading: str = "h2") -> str:
     return f'''<article class="project-card">
 <span class="project-status">{html.escape(project["status"])}</span>
-<{heading}><a href="{project['docs_path']}">{html.escape(project["name"])}</a></{heading}>
+<{heading}><a href="{href}">{html.escape(project["name"])}</a></{heading}>
 <p>{html.escape(project["summary"])}</p>
 <small class="project-meta">{html.escape(project["kind"])}</small>
 </article>'''
@@ -108,7 +110,13 @@ source repositories  ->  validated import  ->  this searchable static site
 
 
 def family_page(family: dict, projects: list[dict]) -> str:
-    cards = "\n".join(project_card(project) for project in projects)
+    cards = "\n".join(
+        project_card(
+            project,
+            f'{project["slug"]}/',
+        )
+        for project in projects
+    )
     return f'''<p class="docs-eyebrow">Project family</p>
 
 # {family["title"]}
@@ -121,49 +129,28 @@ def family_page(family: dict, projects: list[dict]) -> str:
 '''
 
 
-def project_page(project: dict, projects_by_id: dict[str, dict]) -> str:
-    links = [f'[GitHub repository]({project["repository"]}){{ .md-button .md-button--primary }}']
-    if project.get("package_url"):
-        links.append(f'[Package reference]({project["package_url"]}){{ .md-button }}')
-    related = "\n".join(
-        f'- [{projects_by_id[item]["name"]}]({projects_by_id[item]["docs_path"]})'
-        for item in project["related"]
-    ) or "This project does not declare related projects yet."
-    roots = ", ".join(f'`{root}/`' for root in project["source"]["roots"]) or "README only"
-    return f'''<p class="docs-eyebrow">{html.escape(project["kind"])}</p>
-
-# {html.escape(project["name"])}
-
-<span class="project-status">{html.escape(project["status"])}</span>
-
-<p class="docs-lede">{html.escape(project["summary"])}</p>
-
-{' '.join(links)}
-
-!!! note "Documentation import is next"
-    This catalog page is ready, but repository-owned documentation has not been imported yet. Until that pipeline lands, the linked GitHub repository is authoritative.
-
-## Documentation sources
-
-<div class="source-note">
-Requested ref: <strong>{html.escape(project["source"]["ref"])}</strong><br>
-Entry point: <strong>{html.escape(project["source"]["readme"])}</strong><br>
-Additional roots: <strong>{roots}</strong>
-</div>
-
-## Related projects
-
-{related}
-'''
-
-
-def generated_nav(catalog: dict) -> list[dict]:
+def generated_nav(catalog: dict, manifest: dict | None = None) -> list[dict]:
+    imported = {project["id"]: project for project in (manifest or {}).get("projects", [])}
     nav: list[dict] = [{"Home": "index.md"}]
     for family in sorted(catalog["families"], key=lambda item: item["order"]):
         projects = [p for p in catalog["projects"] if p["family"] == family["id"]]
         base = family_path(projects[0])
         pages: list[dict] = [{"Overview": f"{base}/index.md"}]
-        pages.extend({project["name"]: project["docs_path"].strip("/") + "/index.md"} for project in projects)
+        for project in projects:
+            imported_pages = imported.get(project["id"], {}).get("pages", [])
+            if len(imported_pages) <= 1:
+                target = (
+                    imported_pages[0]["output_path"]
+                    if imported_pages
+                    else project["docs_path"].strip("/") + "/index.md"
+                )
+                pages.append({project["name"]: target})
+            else:
+                project_pages = [{"Overview": imported_pages[0]["output_path"]}]
+                project_pages.extend(
+                    {page["title"]: page["output_path"]} for page in imported_pages[1:]
+                )
+                pages.append({project["name"]: project_pages})
         nav.append({family["title"]: pages})
     nav.append(
         {
@@ -174,6 +161,12 @@ def generated_nav(catalog: dict) -> list[dict]:
         }
     )
     nav.append({"About": [{"Architecture": "about/architecture.md"}, {"Authoring": "about/authoring.md"}]})
+    nav[-1]["About"].extend(
+        [
+            {"Documentation validation": "about/validation.md"},
+            {"Refresh and recovery": "about/automation.md"},
+        ]
+    )
     return nav
 
 
@@ -188,24 +181,23 @@ def generate() -> None:
     (GENERATED_DOCS / "guides").mkdir()
     shutil.copy2(ROOT / "docs" / "architecture.md", GENERATED_DOCS / "about" / "architecture.md")
     shutil.copy2(ROOT / "docs" / "authoring.md", GENERATED_DOCS / "about" / "authoring.md")
+    shutil.copy2(ROOT / "docs" / "validation.md", GENERATED_DOCS / "about" / "validation.md")
+    shutil.copy2(ROOT / "docs" / "automation.md", GENERATED_DOCS / "about" / "automation.md")
     shutil.copy2(ROOT / "docs" / "guides" / "gate-stack.md", GENERATED_DOCS / "guides" / "gate-stack.md")
     shutil.copy2(ROOT / "docs" / "guides" / "agent-tooling.md", GENERATED_DOCS / "guides" / "agent-tooling.md")
     (GENERATED_DOCS / "index.md").write_text(homepage(catalog))
 
-    projects_by_id = {project["id"]: project for project in catalog["projects"]}
+    manifest = import_all(catalog, GENERATED_DOCS)
+
     for family in catalog["families"]:
         projects = [p for p in catalog["projects"] if p["family"] == family["id"]]
         base = family_path(projects[0])
         family_dir = GENERATED_DOCS / base
-        family_dir.mkdir(parents=True)
+        family_dir.mkdir(parents=True, exist_ok=True)
         (family_dir / "index.md").write_text(family_page(family, projects))
-        for project in projects:
-            target = GENERATED_DOCS / project["docs_path"].strip("/")
-            target.mkdir(parents=True)
-            (target / "index.md").write_text(project_page(project, projects_by_id))
 
     config = yaml.safe_load((ROOT / "mkdocs.yml").read_text())
-    config["nav"] = generated_nav(catalog)
+    config["nav"] = generated_nav(catalog, manifest)
     GENERATED_CONFIG.write_text(yaml.safe_dump(config, sort_keys=False, width=100))
     print(f"Generated {len(catalog['projects'])} project pages across {len(catalog['families'])} families")
 

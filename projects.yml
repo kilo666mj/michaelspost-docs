@@ -132,7 +132,7 @@ projects:
     source:
       ref: main
       readme: README.md
-      roots: []
+      roots: [docs]
     field_notes:
       - https://michaelspost.com/posts/2026-08-26-wayminder.html
 
@@ -272,4 +272,3 @@ projects:
       roots: []
     field_notes:
       - https://michaelspost.com/posts/2026-08-26-tintwire.html
-

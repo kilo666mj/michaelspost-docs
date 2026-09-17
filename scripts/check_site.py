@@ -55,7 +55,15 @@ def main() -> None:
                 failures.append(f"{label}: image missing alt text")
         for link in soup.select("main a[href]"):
             is_code_anchor = (link.get("id") or "").startswith("__codelineno-")
-            if not is_code_anchor and not link.get_text(" ", strip=True) and not link.get("aria-label"):
+            image_name = " ".join(
+                image.get("alt", "").strip() for image in link.find_all("img") if image.get("alt")
+            )
+            if (
+                not is_code_anchor
+                and not link.get_text(" ", strip=True)
+                and not link.get("aria-label")
+                and not image_name
+            ):
                 failures.append(f"{label}: link has no accessible name")
             target = target_for(page, link["href"])
             if target is not None and not target.exists():

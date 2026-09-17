@@ -141,6 +141,35 @@ def rewrite_html_assets(directory: Path, replacements: dict[Path, Path]) -> None
             page.write_text(updated)
 
 
+def webp_command(source: Path, destination: Path) -> list[str]:
+    if converter := shutil.which("cwebp"):
+        return [
+            converter,
+            "-quiet",
+            "-resize",
+            "768",
+            "0",
+            "-q",
+            "82",
+            str(source),
+            "-o",
+            str(destination),
+        ]
+    if converter := shutil.which("magick"):
+        return [
+            converter,
+            str(source),
+            "-resize",
+            "768x>",
+            "-quality",
+            "82",
+            "-define",
+            "webp:method=6",
+            str(destination),
+        ]
+    raise SystemExit("cwebp or ImageMagick is required to optimize large documentation images")
+
+
 def optimize_bundle(directory: Path) -> dict[str, int]:
     """Remove development-only files and optimize imported image assets."""
     source_maps = list(directory.rglob("*.map"))
@@ -167,35 +196,17 @@ def optimize_bundle(directory: Path) -> dict[str, int]:
 
     large_pngs = [path for path in directory.rglob("*.png") if path.stat().st_size >= LARGE_PNG_BYTES]
     converted = 0
-    if large_pngs:
-        converter = shutil.which("cwebp")
-        if not converter:
-            raise SystemExit("cwebp is required to optimize large documentation images")
-        for source in large_pngs:
-            destination = source.with_suffix(".webp")
-            if destination.exists():
-                raise SystemExit(f"image optimization target already exists: {destination}")
-            subprocess.run(
-                [
-                    converter,
-                    "-quiet",
-                    "-resize",
-                    "768",
-                    "0",
-                    "-q",
-                    "82",
-                    str(source),
-                    "-o",
-                    str(destination),
-                ],
-                check=True,
-            )
-            if destination.stat().st_size >= source.stat().st_size:
-                destination.unlink()
-                continue
-            rewrite_html_assets(directory, {source.resolve(): destination.resolve()})
-            source.unlink()
-            converted += 1
+    for source in large_pngs:
+        destination = source.with_suffix(".webp")
+        if destination.exists():
+            raise SystemExit(f"image optimization target already exists: {destination}")
+        subprocess.run(webp_command(source, destination), check=True)
+        if destination.stat().st_size >= source.stat().st_size:
+            destination.unlink()
+            continue
+        rewrite_html_assets(directory, {source.resolve(): destination.resolve()})
+        source.unlink()
+        converted += 1
 
     return {
         "source_maps_removed": len(source_maps),

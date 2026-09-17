@@ -119,3 +119,16 @@ def test_optimize_bundle_converts_large_png_and_rewrites_reference(monkeypatch, 
     assert not image.exists()
     assert image.with_suffix(".webp").read_bytes() == b"webp"
     assert 'src="assets/large.webp"' in page.read_text()
+
+
+def test_webp_command_falls_back_to_imagemagick(monkeypatch, tmp_path):
+    monkeypatch.setattr(
+        refresh.shutil,
+        "which",
+        lambda name: "/usr/bin/magick" if name == "magick" else None,
+    )
+
+    command = refresh.webp_command(tmp_path / "source.png", tmp_path / "target.webp")
+
+    assert command[0] == "/usr/bin/magick"
+    assert "768x>" in command

@@ -70,3 +70,26 @@ def test_stale_refresh_lease_is_replaced(monkeypatch, tmp_path):
 
     assert refresh.read_json(refresh.LEASE)["run_id"] == "new"
     assert list(refresh.CACHE.glob("lease.stale.*.json"))
+
+
+def test_optimize_bundle_removes_maps_and_rewrites_duplicate_images(tmp_path):
+    site = tmp_path / "site"
+    first = site / "one" / "assets" / "mascot.png"
+    second = site / "two" / "docs" / "mascot.png"
+    first.parent.mkdir(parents=True)
+    second.parent.mkdir(parents=True)
+    first.write_bytes(b"same image")
+    second.write_bytes(b"same image")
+    (site / "one" / "index.html").write_text('<img src="assets/mascot.png">')
+    (site / "two" / "index.html").write_text('<img src="docs/mascot.png">')
+    source_map = site / "assets" / "app.js.map"
+    source_map.parent.mkdir()
+    source_map.write_text("debug")
+
+    result = refresh.optimize_bundle(site)
+
+    assert result == {"source_maps_removed": 1, "duplicate_images_removed": 1}
+    assert first.exists()
+    assert not second.exists()
+    assert not source_map.exists()
+    assert '../one/assets/mascot.png' in (site / "two" / "index.html").read_text()

@@ -9,8 +9,10 @@ import json
 import os
 import re
 import subprocess
+import sys
 import zipfile
 from pathlib import Path
+from urllib.parse import unquote, urlsplit, urlunsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 CACHE = ROOT / ".cache" / "refresh"
@@ -25,6 +27,8 @@ SECRET_RE = re.compile(
     rb"BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY|Bearer [A-Za-z0-9_-]{20,}|"
     rb"AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{30,}"
 )
+HTML_ASSET_RE = re.compile(r'(?P<prefix>\b(?:href|src)=["\'])(?P<url>[^"\']+)(?P<suffix>["\'])')
+IMAGE_SUFFIXES = {".avif", ".gif", ".jpeg", ".jpg", ".png", ".svg", ".webp"}
 
 
 def now() -> dt.datetime:
@@ -114,6 +118,52 @@ def scan_bundle(directory: Path) -> None:
             raise SystemExit(f"possible secret in generated bundle: {relative}")
 
 
+def optimize_bundle(directory: Path) -> dict[str, int]:
+    """Remove development-only files and coalesce byte-identical images."""
+    source_maps = list(directory.rglob("*.map"))
+    for path in source_maps:
+        path.unlink()
+
+    groups: dict[tuple[str, str], list[Path]] = {}
+    for path in directory.rglob("*"):
+        if path.is_file() and path.suffix.lower() in IMAGE_SUFFIXES:
+            key = (hashlib.sha256(path.read_bytes()).hexdigest(), path.suffix.lower())
+            groups.setdefault(key, []).append(path)
+
+    replacements: dict[Path, Path] = {}
+    removed = 0
+    for paths in groups.values():
+        if len(paths) < 2:
+            continue
+        canonical, *duplicates = sorted(paths)
+        replacements.update({path.resolve(): canonical.resolve() for path in paths})
+        for duplicate in duplicates:
+            duplicate.unlink()
+            removed += 1
+
+    if replacements:
+        for page in directory.rglob("*.html"):
+            original = page.read_text()
+
+            def replace(match: re.Match, page: Path = page) -> str:
+                parsed = urlsplit(match.group("url"))
+                if parsed.scheme or parsed.netloc or not parsed.path:
+                    return match.group(0)
+                target = (page.parent / unquote(parsed.path)).resolve()
+                canonical = replacements.get(target)
+                if canonical is None:
+                    return match.group(0)
+                relative = os.path.relpath(canonical, page.parent).replace(os.sep, "/")
+                rewritten = urlunsplit(("", "", relative, parsed.query, parsed.fragment))
+                return f'{match.group("prefix")}{rewritten}{match.group("suffix")}'
+
+            updated = HTML_ASSET_RE.sub(replace, original)
+            if updated != original:
+                page.write_text(updated)
+
+    return {"source_maps_removed": len(source_maps), "duplicate_images_removed": removed}
+
+
 def package(directory: Path, archive: Path) -> None:
     archive.parent.mkdir(parents=True, exist_ok=True)
     temporary = archive.with_suffix(".tmp.zip")
@@ -149,6 +199,8 @@ def prepare(run_id: str) -> None:
         release(run_id)
         print(json.dumps({"changed": False, "source_fingerprint": digest(state)}))
         return
+    optimization = optimize_bundle(ROOT / "dist")
+    subprocess.run([sys.executable, "-m", "scripts.check_site"], cwd=ROOT, check=True)
     scan_bundle(ROOT / "dist")
     package(ROOT / "dist", ARCHIVE)
     candidate = {
@@ -157,6 +209,7 @@ def prepare(run_id: str) -> None:
         "source_state": state,
         "source_fingerprint": digest(state),
         "bundle_sha256": hashlib.sha256(ARCHIVE.read_bytes()).hexdigest(),
+        "optimization": optimization,
         "archive": str(ARCHIVE),
         "rendercase": config(),
     }

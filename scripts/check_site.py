@@ -53,6 +53,10 @@ def main() -> None:
         for image in soup.find_all("img"):
             if image.get("alt") is None:
                 failures.append(f"{label}: image missing alt text")
+            if image.get("src"):
+                target = target_for(page, image["src"])
+                if target is not None and not target.exists():
+                    failures.append(f"{label}: broken image {image['src']}")
         for link in soup.select("main a[href]"):
             is_code_anchor = (link.get("id") or "").startswith("__codelineno-")
             image_name = " ".join(

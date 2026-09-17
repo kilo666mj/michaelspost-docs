@@ -1,8 +1,9 @@
 # Refresh automation and recovery
 
-> **Current status:** scheduled publication is disabled. The repository still
-> retains this tested workflow for a future hosted deployment, but no agent is
-> currently authorized to upload builds or create artifact versions.
+> **Current status:** scheduled Rendercase publication is disabled. The
+> repository retains this tested workflow for possible future artifact
+> publication, but no agent is currently authorized to upload builds or create
+> artifact versions. The public static site is deployed separately to Spike.
 
 This Rendercase workflow is separate from the static Spike deployment described
 in [Deployment](deployment.md). Deploying to Spike does not create or update an

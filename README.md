@@ -43,18 +43,19 @@ internal links, basic HTML accessibility, and light/dark body-text contrast.
 
 ## Hosting status
 
-Automated artifact publication is paused. Validated builds remain local build
-output, and no scheduled agent uploads them. The public project page links to
-the documentation source repository and each project's canonical GitHub
-repository. The retained refresh tooling is dormant and available only if a
-hosted catalog is intentionally restored later.
+The validated catalog is published at <https://docs.michaelspost.com/> as a
+static nginx site on Spike behind the existing Cloudflare Tunnel. Deployment is
+currently an explicit Ansible operation rather than a recurring job. Rendercase
+artifact publication remains disabled; the retained artifact-refresh tooling is
+dormant and does not participate in the public site.
 
 ## Status
 
 The documentation build imports the configured README and `docs/` content from
 all 15 public repositories. Every generated page records its source path,
 immutable commit, source-update time, and edit link. The generated build
-manifest records the complete source snapshot used for each Rendercase version.
+manifest records the complete source snapshot used for each build and any
+future Rendercase version.
 
 See:
 

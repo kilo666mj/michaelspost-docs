@@ -18,8 +18,8 @@ import logic, and published build metadata.
 
 ## Local development
 
-The project uses Python 3.12, MkDocs Material, and `uv` for reproducible
-dependencies:
+The project supports Python 3.12 through 3.14 and uses MkDocs Material and
+`uv` for reproducible dependencies:
 
 ```sh
 make setup

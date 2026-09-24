@@ -2,7 +2,7 @@
 name = "michaelspost-docs"
 version = "0.1.0"
 description = "Static documentation hub for Michael's public projects"
-requires-python = ">=3.12,<3.14"
+requires-python = ">=3.12,<3.15"
 dependencies = [
   "beautifulsoup4>=4.13,<5",
   "jsonschema>=4.23,<5",

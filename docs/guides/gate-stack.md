@@ -110,6 +110,6 @@ for missing TLS sightings. Preserve local rollback paths for every inline gate.
 
 - [TLSGate README and runbooks](https://github.com/kilo666mj/tlsgate)
 - [SSHGate README and runbooks](https://github.com/kilo666mj/sshgate)
-- [Gatekit package documentation](https://pkg.go.dev/github.com/kilo666mj/gatekit)
+- [Gatekit package documentation](https://pkg.go.dev/go.michaelspost.com/gatekit)
 - [Gatehub deployment, API, and operations](https://github.com/kilo666mj/gatehub)
 - [GateSignal deployment, migration, and operations](https://github.com/kilo666mj/gatesignal)

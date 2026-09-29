@@ -44,7 +44,7 @@ projects:
     summary: Shared node-side library for fingerprint gates, including SQLite state, Gatehub sync, and rate limiting.
     repository: https://github.com/kilo666mj/gatekit
     docs_path: /gate-stack/gatekit/
-    package_url: https://pkg.go.dev/github.com/kilo666mj/gatekit
+    package_url: https://pkg.go.dev/go.michaelspost.com/gatekit
     related: [gatehub, sshgate, tlsgate]
     source:
       ref: main
@@ -213,7 +213,7 @@ projects:
     summary: Small, opinionated helpers for secure Go MCP servers.
     repository: https://github.com/kilo666mj/mcpkit
     docs_path: /libraries/mcpkit/
-    package_url: https://pkg.go.dev/github.com/kilo666mj/mcpkit
+    package_url: https://pkg.go.dev/go.michaelspost.com/mcpkit
     related: [rendercase, rilldns, switchboard, wayminder]
     source:
       ref: main
@@ -230,7 +230,7 @@ projects:
     summary: OpenID Connect relying-party helper for Go web applications.
     repository: https://github.com/kilo666mj/oidcrp
     docs_path: /libraries/oidcrp/
-    package_url: https://pkg.go.dev/github.com/kilo666mj/oidcrp
+    package_url: https://pkg.go.dev/go.michaelspost.com/oidcrp
     related: []
     source:
       ref: main
@@ -264,7 +264,7 @@ projects:
     summary: Go publishing client for Tintwire native cards with bounded retries and Mattermost failover.
     repository: https://github.com/kilo666mj/tintwire-go
     docs_path: /libraries/tintwire-go/
-    package_url: https://pkg.go.dev/github.com/kilo666mj/tintwire-go
+    package_url: https://pkg.go.dev/go.michaelspost.com/tintwire-go
     related: [tintwire]
     source:
       ref: main

@@ -18,7 +18,7 @@ import logic, and published build metadata.
 
 ## Local development
 
-The project supports Python 3.12 through 3.14 and uses MkDocs Material and
+The project supports Python 3.12 through 3.15 and uses MkDocs Material and
 `uv` for reproducible dependencies:
 
 ```sh
